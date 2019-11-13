@@ -4,20 +4,12 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/manhofung/CLionProjects/COMP3046-Milestone_3/main.cpp" "/Users/manhofung/CLionProjects/COMP3046-Milestone_3/cmake-build-debug/CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.o"
+  "C:/Working03/CLionProjects/comp3046_milestone3/main.cpp" "C:/Working03/CLionProjects/comp3046_milestone3/cmake-build-debug/CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj"
   )
-set(CMAKE_CXX_COMPILER_ID "AppleClang")
-
-# Preprocessor definitions for this target.
-set(CMAKE_TARGET_DEFINITIONS_CXX
-  "BOOST_ALL_NO_LIB"
-  "BOOST_FILESYSTEM_DYN_LINK"
-  "BOOST_REGEX_DYN_LINK"
-  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/usr/local/include"
   )
 
 # Targets to which this target links.
