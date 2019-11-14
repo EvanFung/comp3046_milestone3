@@ -56,32 +56,47 @@ include CMakeFiles/COMP3046_Milestone_3.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/COMP3046_Milestone_3.dir/flags.make
 
-CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj: CMakeFiles/COMP3046_Milestone_3.dir/flags.make
-CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Working03\CLionProjects\comp3046_milestone3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj"
-	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\COMP3046_Milestone_3.dir\main.cpp.obj -c C:\Working03\CLionProjects\comp3046_milestone3\main.cpp
+CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj: CMakeFiles/COMP3046_Milestone_3.dir/flags.make
+CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj: ../src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Working03\CLionProjects\comp3046_milestone3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\COMP3046_Milestone_3.dir\src\main.cpp.obj -c C:\Working03\CLionProjects\comp3046_milestone3\src\main.cpp
 
-CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.i"
-	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Working03\CLionProjects\comp3046_milestone3\main.cpp > CMakeFiles\COMP3046_Milestone_3.dir\main.cpp.i
+CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.i"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Working03\CLionProjects\comp3046_milestone3\src\main.cpp > CMakeFiles\COMP3046_Milestone_3.dir\src\main.cpp.i
 
-CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.s"
-	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Working03\CLionProjects\comp3046_milestone3\main.cpp -o CMakeFiles\COMP3046_Milestone_3.dir\main.cpp.s
+CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.s"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Working03\CLionProjects\comp3046_milestone3\src\main.cpp -o CMakeFiles\COMP3046_Milestone_3.dir\src\main.cpp.s
+
+CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj: CMakeFiles/COMP3046_Milestone_3.dir/flags.make
+CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj: ../src/NeuralNetwork.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Working03\CLionProjects\comp3046_milestone3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\COMP3046_Milestone_3.dir\src\NeuralNetwork.cpp.obj -c C:\Working03\CLionProjects\comp3046_milestone3\src\NeuralNetwork.cpp
+
+CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.i"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Working03\CLionProjects\comp3046_milestone3\src\NeuralNetwork.cpp > CMakeFiles\COMP3046_Milestone_3.dir\src\NeuralNetwork.cpp.i
+
+CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.s"
+	C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Working03\CLionProjects\comp3046_milestone3\src\NeuralNetwork.cpp -o CMakeFiles\COMP3046_Milestone_3.dir\src\NeuralNetwork.cpp.s
 
 # Object files for target COMP3046_Milestone_3
 COMP3046_Milestone_3_OBJECTS = \
-"CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj"
+"CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj" \
+"CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj"
 
 # External object files for target COMP3046_Milestone_3
 COMP3046_Milestone_3_EXTERNAL_OBJECTS =
 
-COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj
+COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj
+COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj
 COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/build.make
 COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/linklibs.rsp
 COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/objects1.rsp
 COMP3046_Milestone_3.exe: CMakeFiles/COMP3046_Milestone_3.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Working03\CLionProjects\comp3046_milestone3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable COMP3046_Milestone_3.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Working03\CLionProjects\comp3046_milestone3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable COMP3046_Milestone_3.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\COMP3046_Milestone_3.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj"
+  "CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj"
+  "CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj"
   "COMP3046_Milestone_3.exe"
   "COMP3046_Milestone_3.exe.manifest"
   "COMP3046_Milestone_3.pdb"

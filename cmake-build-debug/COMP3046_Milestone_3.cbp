@@ -80,7 +80,10 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="C:/Working03/CLionProjects/comp3046_milestone3/main.cpp">
+		<Unit filename="C:/Working03/CLionProjects/comp3046_milestone3/src/NeuralNetwork.cpp">
+			<Option target="COMP3046_Milestone_3"/>
+		</Unit>
+		<Unit filename="C:/Working03/CLionProjects/comp3046_milestone3/src/main.cpp">
 			<Option target="COMP3046_Milestone_3"/>
 		</Unit>
 		<Unit filename="C:/Working03/CLionProjects/comp3046_milestone3/CMakeLists.txt">

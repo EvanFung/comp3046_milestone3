@@ -122,32 +122,59 @@ COMP3046_Milestone_3/fast:
 	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/build
 .PHONY : COMP3046_Milestone_3/fast
 
-main.obj: main.cpp.obj
+src/NeuralNetwork.obj: src/NeuralNetwork.cpp.obj
 
-.PHONY : main.obj
+.PHONY : src/NeuralNetwork.obj
 
 # target to build an object file
-main.cpp.obj:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.obj
-.PHONY : main.cpp.obj
+src/NeuralNetwork.cpp.obj:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj
+.PHONY : src/NeuralNetwork.cpp.obj
 
-main.i: main.cpp.i
+src/NeuralNetwork.i: src/NeuralNetwork.cpp.i
 
-.PHONY : main.i
+.PHONY : src/NeuralNetwork.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/NeuralNetwork.cpp.i:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.i
+.PHONY : src/NeuralNetwork.cpp.i
 
-main.s: main.cpp.s
+src/NeuralNetwork.s: src/NeuralNetwork.cpp.s
 
-.PHONY : main.s
+.PHONY : src/NeuralNetwork.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/NeuralNetwork.cpp.s:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.s
+.PHONY : src/NeuralNetwork.cpp.s
+
+src/main.obj: src/main.cpp.obj
+
+.PHONY : src/main.obj
+
+# target to build an object file
+src/main.cpp.obj:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj
+.PHONY : src/main.cpp.obj
+
+src/main.i: src/main.cpp.i
+
+.PHONY : src/main.i
+
+# target to preprocess a source file
+src/main.cpp.i:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
+
+src/main.s: src/main.cpp.s
+
+.PHONY : src/main.s
+
+# target to generate assembly for a file
+src/main.cpp.s:
+	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -158,9 +185,12 @@ help:
 	@echo ... edit_cache
 	@echo ... COMP3046_Milestone_3
 	@echo ... rebuild_cache
-	@echo ... main.obj
-	@echo ... main.i
-	@echo ... main.s
+	@echo ... src/NeuralNetwork.obj
+	@echo ... src/NeuralNetwork.i
+	@echo ... src/NeuralNetwork.s
+	@echo ... src/main.obj
+	@echo ... src/main.i
+	@echo ... src/main.s
 .PHONY : help
 
 
