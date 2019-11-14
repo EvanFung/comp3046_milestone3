@@ -86,6 +86,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/manhofung/CLionProjects/COMP3046-Milestone_3/data_loader.h">
+			<Option target="COMP3046_Milestone_3"/>
+		</Unit>
 		<Unit filename="/Users/manhofung/CLionProjects/COMP3046-Milestone_3/main.cpp">
 			<Option target="COMP3046_Milestone_3"/>
 		</Unit>

@@ -10,6 +10,6 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.71.0 COMPONENTS filesystem regex numeric)
 
 if(Boost_FOUND)
-    add_executable(COMP3046_Milestone_3 main.cpp)
+    add_executable(COMP3046_Milestone_3 main.cpp data_loader.h)
     target_link_libraries(COMP3046_Milestone_3 ${Boost_LIBRARIES})
 endif()
