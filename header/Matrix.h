@@ -23,12 +23,25 @@ public:
 		set(scalers, col, row);
 	}
 
+    Matrix(float from, float to, int col, int row)
+    {
+        setRandom(from, to, col, row);
+    }
+
 	void set(vector<vector<T>> scalers, int col, int row)
 	{
-		size[0] = col;
-		size[1] = row;
+        size[0] = col;
+        size[1] = row;
 		matrixData.assign(scalers.begin(), scalers.end());
 	}
+
+    void setRandom(float from, float to, int col, int row)
+    {
+        size[0] = col;
+        size[1] = row;
+        vector<vector<T>> scalers = fillRandom(from, to);
+        matrixData.assign(scalers.begin(), scalers.end());
+    }
 
 	Matrix<T> transpose()
 	{
@@ -36,11 +49,12 @@ public:
 
 		for (int i = 0; i < this->getRowSize(); i++)
 		{
-			tmp.push_back(*new vector<T>);
+            vector<T> tmpRow;
 			for (int j = 0; j < this->getColSize(); j++)
 			{
-				tmp[i].push_back(matrixData[j][i]);
+                tmpRow.push_back(matrixData[j][i]);
 			}
+            tmp.push_back(tmpRow);
 		}
 		Matrix<T> tmpMatrix(tmp, this->getRowSize(), this->getColSize());
 		return tmpMatrix;
@@ -52,7 +66,7 @@ public:
 
         for (int i = 0; i < this->getColSize(); i++)
         {
-            tmp.push_back(*new vector<T>);
+            vector<T> tmpRow;
             for (int j = 0; j < m.getRowSize(); j++)
             {
                 T elem = 0;
@@ -62,44 +76,79 @@ public:
                     elem += this->getMatrix()[i][k] * m.getMatrix()[k][j];
                 }
 
-                tmp[i].push_back(elem);
+                tmpRow.push_back(elem);
             }
+            tmp.push_back(tmpRow);
         }
         Matrix<T> tmpMatrix(tmp, this->getColSize(), m.getRowSize());
         return tmpMatrix;
 	}
 
-	Matrix operator * (const float mul)
-	{
-		vector<vector<T>> tmp;
-
-		for (int i = 0; i < this->getColSize(); i++)
-		{
-			tmp.push_back(*new vector<T>);
-			for (int j = 0; j < this->getRowSize(); j++)
-			{
-				tmp[i].push_back(matrixData[i][j] * mul);
-			}
-		}
-		Matrix<T> tmpMatrix(tmp, this->getColSize(), this->getRowSize());
-		return tmpMatrix;
-	}
-
-	Matrix operator + (const Matrix m)
-	{
+    Matrix constOp (T(*operation)(T,float), T constant)
+    {
         vector<vector<T>> tmp;
 
         for (int i = 0; i < this->getColSize(); i++)
         {
-            tmp.push_back(*new vector<T>);
+            vector<T> tmpRow;
             for (int j = 0; j < this->getRowSize(); j++)
             {
-                tmp[i].push_back(matrixData[i][j] + m.matrixData[i][j]);
+                tmpRow.push_back(operation(matrixData[i][j], constant));
             }
+            tmp.push_back(tmpRow);
         }
         Matrix<T> tmpMatrix(tmp, this->getColSize(), this->getRowSize());
         return tmpMatrix;
-	}
+    }
+
+    Matrix operator * (const float constant){return constOp(&constMulOp, constant);}
+    static T constMulOp(T tar, float constant){return tar * constant;}
+    Matrix operator / (const float constant){return constOp(&constDivOp, constant);}
+    static T constDivOp(T tar, float constant){return tar / constant;}
+
+    Matrix matrixDirOp (T(*operation)(T,float), Matrix m)
+    {
+        vector<vector<T>> tmp;
+
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            vector<T> tmpRow;
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                tmpRow.push_back(operation(matrixData[i][j], m.matrixData[i][j]));
+            }
+            tmp.push_back(tmpRow);
+        }
+        Matrix<T> tmpMatrix(tmp, this->getColSize(), this->getRowSize());
+        return tmpMatrix;
+    }
+
+    Matrix operator + (const Matrix m){return matrixDirOp(&matrixAddOp, m);}
+    static T matrixAddOp(T tar, float constant){return tar + constant;}
+
+    Matrix operator - (const Matrix m){return matrixDirOp(&matrixSupOp, m);}
+    static T matrixSupOp(T tar, float constant){return tar - constant;}
+
+    vector<vector<T>> fillRandom(float from, float to)
+    {
+        default_random_engine randEngine(time(NULL));
+        uniform_real_distribution<T> realDist(from, to);
+        realDist(randEngine);
+
+        vector<vector<T>> tmp;
+
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            vector<T> tmpRow;
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                tmpRow.push_back(realDist(randEngine));
+            }
+            tmp.push_back(tmpRow);
+        }
+
+        return tmp;
+    }
 
     int getColSize() const
     {

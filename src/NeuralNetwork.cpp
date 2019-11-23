@@ -18,81 +18,149 @@ private:
     vector<int> layersNums; //num of neuron for each layer, include input layer.
     vector<Matrix<T>> weights;
     vector<Matrix<T>> biases;
+    int batchSize = 100;
 
     Matrix<T> inputLayer;
-    //T ( NeuralNetwork::*activationFunction ) ( T );
+    Matrix<T> goundTruth;
+    //T (*activationFunction) ( T );
 
     void iniWeightsAndBiases()
     {
-        default_random_engine randEngine(time(NULL));
-        uniform_real_distribution<T> realDist(-0.1, 0.1);
-        realDist(randEngine);
-
         //loop through all layers.
         for (int i = 0; i < layersNums.size() - 1; i++)
         {
-            vector<vector<T>> weightsTmp;
-            vector<vector<T>> biasesTmp;
-
-            //loop through nodes of each layers.
-            for (int j = 0; j < layersNums[i + 1]; j++)
-            {
-                weightsTmp.push_back(*new vector<T>);
-                biasesTmp.push_back(*new vector<T>);
-
-                biasesTmp[j].push_back({realDist(randEngine)});
-
-                //loop through each connection for a node.
-                for (int k = 0; k < layersNums[i]; k++) {
-                    weightsTmp[j].push_back(realDist(randEngine));
-                }
-            }
-
-            weights.push_back(*new Matrix<float>(weightsTmp, layersNums[i + 1], layersNums[i]));
-            biases.push_back(*new Matrix<float>(biasesTmp, layersNums[i + 1], 1));
+            Matrix<T> weight(-1, 1, layersNums[i + 1], layersNums[i]);
+            Matrix<T> bias(-1, 1, layersNums[i + 1], 1);
+            weights.push_back(weight);
+            biases.push_back(bias);
         }
+    }
+
+    Matrix<T> layerOutput(int layerIndex, Matrix<T> preLayer)
+    {
+        Matrix actives = activation(weights[layerIndex] * preLayer + biases[layerIndex]);
+        return actives;
+    }
+
+
+
+    Matrix<T> layerError(Matrix<T> postWeights, Matrix<T> postError, Matrix<T> output)
+    {
+        return hadamardX(matrixTXMatrix(postWeights, postError), activationD(output));
+    }
+
+    static T sigmoid (T x)
+    {
+        return 1.0/(1.0+ pow(M_E,-x));
+    }
+    static T sigmoidD (T sig)
+    {
+        return sig * (1.0-sig);
+    }
+
+    Matrix<T> activation(Matrix<T> layer)
+    {
+        vector<vector<T>> activesTmp;
+        for (int i = 0; i < layer.getColSize(); i++)
+        {
+            vector<T> activeTmp;
+            activeTmp.push_back(sigmoid(layer.getMatrix()[i][0]));
+            activesTmp.push_back(activeTmp);
+        }
+
+        Matrix<T> actives(activesTmp, layer.getColSize(), 1);
+        return actives;
+    }
+
+    Matrix<T> activationD(Matrix<T> layer)
+    {
+        vector<vector<T>> activesTmp;
+        for (int i = 0; i < layer.getColSize(); i++)
+        {
+            vector<T> activeTmp;
+            activeTmp.push_back(sigmoidD(layer.getMatrix()[i][0]));
+            activesTmp.push_back(activeTmp);
+        }
+
+        Matrix<T> actives(activesTmp, layer.getColSize(), 1);
+        return actives;
     }
 
 public:
 
-
     //inputLayer take column Matrix.
-    NeuralNetwork(Matrix<T> inputLayer, vector<int> layersNums)
+    NeuralNetwork(Matrix<T> inputLayer, Matrix<T> goundTruth, vector<int> hiddenLayersNums, int batchSize = 100)
     {
         this->layersNums.push_back(inputLayer.getColSize());
-        this->layersNums.insert( this->layersNums.end(), layersNums.begin(), layersNums.end());
+        this->layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
+        this->layersNums.push_back(goundTruth.getColSize());
         iniWeightsAndBiases();
         this->inputLayer = inputLayer;
-        //this->activationFunction = &sigmoid;
+        this->goundTruth =  goundTruth;
+        this->batchSize = batchSize;
+        // this->activationFunction = &sigmoid;
 
     }
 
-    T sigmoid (T x)
+    Matrix<T> lastError(Matrix<T> output)
     {
-        return 1.0/(1.0+ pow(M_E,-x));
-    };
+        return hadamardX((output - goundTruth), activationD(output));
+    }
 
-    Matrix<T> feed()
+    vector<Matrix<T>> outputs()
     {
-        Matrix<T> layer = inputLayer;
+        Matrix<T> output = inputLayer;
+        vector<Matrix<T>> outputs;
+
         for (int i = 0; i < layersNums.size() - 1; i++)
         {
-            layer = feedforward(i, layer);
+            output = layerOutput(i, output);
+            outputs.push_back(output);
         }
-        return layer;
+        return outputs;
     }
 
-    Matrix<T> feedforward(int layer, Matrix<T> preLayer)
+    T loss()
     {
-        Matrix tmp =  weights[layer] * preLayer + biases[layer];
-        vector<vector<T>> sigTmp;
-        for (int i = 0; i < tmp.getColSize(); i++)
-        {
-            sigTmp.push_back(*new vector<T>);
-            sigTmp[i].push_back(sigmoid(tmp.getMatrix()[i][0]));
-        }
+       T loss = 0;
 
-        return *new Matrix<T>(sigTmp, tmp.getColSize(), 1);
+        for (int i = 0; i < goundTruth.getColSize(); i++)
+        {
+            loss += pow(goundTruth.getMatrix()[i][0] - outputs()[outputs().size() - 1].getMatrix()[i][0], 2.0f);
+        }
+        return loss/2;
+    }
+
+    void update()
+    {
+        vector<Matrix<T>> _outputs = outputs();
+        vector<Matrix<T>> _errors = errors(_outputs);
+        for (int i = 0; i < layersNums.size() - 1; ++i)
+        {
+            weights[i] = weights[i] - matrixXMatrixT(_errors[i], _outputs[i]);
+            biases[i] = biases[i] - _errors[i];
+        }
+    }
+
+//    vector<vector<Matrix<T>>> batchErrors()
+//    {
+//        vector<vector<Matrix<T>>> _batchErrors;
+//    }
+
+    vector<Matrix<T>> errors(vector<Matrix<T>> outputs)
+    {
+        vector<Matrix<T>> errors;
+
+        Matrix<T> errorTmp = lastError(outputs[outputs.size()-1]);
+        errors.push_back(errorTmp);
+
+        for (int i = layersNums.size() - 2; i > 0; --i)
+        {
+            errorTmp = layerError(weights[i], errorTmp, outputs[i - 1]);
+            errors.insert(errors.begin(), errorTmp);
+        }
+        return errors;
+
     }
 
     void weightsDebug()
@@ -120,5 +188,15 @@ public:
         cout << "inputLayer: " << endl;
         inputLayer.print();
         cout << endl;
+
+    }
+
+    void print(vector<Matrix<T>> matrices)
+    {
+        for (int i = 0; i < weights.size(); ++i)
+        {
+            matrices[i].print();
+            cout << endl;
+        }
     }
 };

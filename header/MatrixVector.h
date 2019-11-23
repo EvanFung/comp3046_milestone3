@@ -69,12 +69,16 @@ template <class T>
 Matrix<T> hadamardX(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
-    for (int i = 0; i < m1.getSize()[0]; ++i) {
-        tmp.push_back(*new vector<T>);
-        for (int j = 0; j < m1.getSize()[1]; ++j) {
-            tmp[i].push_back(m1.getMatrix()[i][j] * m2.getMatrix()[i][j]);
+    for (int i = 0; i < m1.getColSize(); ++i) {
+        vector<T> tmpRow;
+        for (int j = 0; j < m1.getRowSize(); ++j) {
+            tmpRow.push_back(m1.getMatrix()[i][j] * m2.getMatrix()[i][j]);
         }
+        tmp.push_back(tmpRow);
     }
+
+    Matrix<T> tmpMatrix(tmp, m1.getColSize(), m1.getRowSize());
+    return tmpMatrix;
 }
 
 template <class T>
@@ -84,13 +88,40 @@ Matrix<T> vectorXMatrix(MathVector<T> v, Matrix<T> m)
 }
 
 template <class T>
+Matrix<T> matrixTXMatrix(Matrix<T> m1, Matrix<T> m2)
+{
+    vector<vector<T>> tmp;
+
+    for (int i = 0; i < m1.getRowSize(); i++)
+    {
+        vector<T> tmpCol;
+
+        for (int j = 0; j < m2.getRowSize(); j++)
+        {
+            T elem = 0;
+
+            for (int k = 0; k < m1.getColSize(); k++)
+            {
+                elem += m1.getMatrix()[k][i] * m2.getMatrix()[k][j];
+            }
+
+            tmpCol.push_back(elem);
+        }
+        tmp.push_back(tmpCol);
+    }
+    Matrix<T> tmpMatrix(tmp, m1.getRowSize(), m2.getRowSize());
+    return tmpMatrix;
+}
+
+template <class T>
 Matrix<T> matrixXMatrixT(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
 
     for (int i = 0; i < m1.getColSize(); i++)
     {
-        tmp.push_back(*new vector<T>);
+        vector<T> tmpCol;
+
         for (int j = 0; j < m2.getColSize(); j++)
         {
             T elem = 0;
@@ -100,8 +131,9 @@ Matrix<T> matrixXMatrixT(Matrix<T> m1, Matrix<T> m2)
                 elem += m1.getMatrix()[i][k] * m2.getMatrix()[j][k];
             }
 
-            tmp[i].push_back(elem);
+            tmpCol.push_back(elem);
         }
+        tmp.push_back(tmpCol);
     }
     Matrix<T> tmpMatrix(tmp, m1.getColSize(), m2.getColSize());
     return tmpMatrix;
