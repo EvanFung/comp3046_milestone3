@@ -22,13 +22,13 @@ int main() {
 //    (matrixTXMatrix(m3,m4)).print();
 //    cout << endl;
 
-    Matrix<double> testMatrix({{1,2,3,4,5,6,7,8,9}}, 1,9);
+    Matrix<float> testMatrix({{1,2,3,4,5,6,7,8,9}}, 1,9);
     testMatrix = testMatrix.transpose();
 
-    Matrix<double> gTMatrix({{1,0,1}}, 1,3);
+    Matrix<float> gTMatrix({{1,0,1}}, 1,3);
     gTMatrix = gTMatrix.transpose();
 
-    NeuralNetwork<double> neuralNetwork(testMatrix, gTMatrix,{8,6});
+    NeuralNetwork<float> neuralNetwork(testMatrix, gTMatrix,{8,6});
 
     cout << "neuralNetwork.outputs(): " << endl;
     neuralNetwork.print(neuralNetwork.outputs());
@@ -39,7 +39,7 @@ int main() {
     cout << "neuralNetwork.loss(): " << neuralNetwork.loss() << endl;
     cout << endl;
 
-    for (int i = 0; i < 10000; ++i)
+    for (int i = 0; i < 1000; ++i)
     {
         neuralNetwork.update();
     }

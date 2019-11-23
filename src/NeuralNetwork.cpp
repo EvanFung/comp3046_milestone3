@@ -111,6 +111,7 @@ public:
     {
         Matrix<T> output = inputLayer;
         vector<Matrix<T>> outputs;
+        outputs.push_back(inputLayer);
 
         for (int i = 0; i < layersNums.size() - 1; i++)
         {
@@ -156,7 +157,7 @@ public:
 
         for (int i = layersNums.size() - 2; i > 0; --i)
         {
-            errorTmp = layerError(weights[i], errorTmp, outputs[i - 1]);
+            errorTmp = layerError(weights[i], errorTmp, outputs[i]);
             errors.insert(errors.begin(), errorTmp);
         }
         return errors;
@@ -193,7 +194,7 @@ public:
 
     void print(vector<Matrix<T>> matrices)
     {
-        for (int i = 0; i < weights.size(); ++i)
+        for (int i = 0; i < matrices.size(); ++i)
         {
             matrices[i].print();
             cout << endl;
