@@ -7,6 +7,8 @@
 #include <cmath>
 #include <random>
 #include <functional>
+#include <algorithm>
+#include <omp.h>
 #include "../header/MatrixVector.h"
 
 using namespace std;
@@ -19,9 +21,13 @@ private:
     vector<Matrix<T>> weights;
     vector<Matrix<T>> biases;
     int batchSize = 100;
+    float learningRate = 0.01;
 
-    Matrix<T> inputLayer;
-    Matrix<T> goundTruth;
+    vector<Matrix<T>> inputLayers;
+    vector<Matrix<T>> groundTruths;
+
+    vector<Matrix<T>> testInputs;
+    vector<Matrix<T>> testGroundTruths;
     //T (*activationFunction) ( T );
 
     void iniWeightsAndBiases()
@@ -88,30 +94,36 @@ private:
 
 public:
 
-    //inputLayer take column Matrix.
-    NeuralNetwork(Matrix<T> inputLayer, Matrix<T> goundTruth, vector<int> hiddenLayersNums, int batchSize = 100)
+    //inputLayers take column Matrix.
+    NeuralNetwork(vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths, vector<int> hiddenLayersNums, int batchSize = 100, T learningRate = 0.01)
     {
-        this->layersNums.push_back(inputLayer.getColSize());
+
+        this->layersNums.push_back(inputLayers[0].getColSize());
         this->layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
-        this->layersNums.push_back(goundTruth.getColSize());
+        this->layersNums.push_back(groundTruths[0].getColSize());
         iniWeightsAndBiases();
-        this->inputLayer = inputLayer;
-        this->goundTruth =  goundTruth;
+        this->inputLayers = inputLayers;
+        this->groundTruths =  groundTruths;
+
+        this->testInputs = testInputs;
+        this->testGroundTruths = testGroundTruths;
+
         this->batchSize = batchSize;
+        this->learningRate = learningRate;
         // this->activationFunction = &sigmoid;
 
     }
 
-    Matrix<T> lastError(Matrix<T> output)
+    Matrix<T> lastError(Matrix<T> output, Matrix<T> groundTruth)
     {
-        return hadamardX((output - goundTruth), activationD(output));
+        return hadamardX((output - groundTruth), activationD(output));
     }
 
-    vector<Matrix<T>> outputs()
+    vector<Matrix<T>> outputs(Matrix<T> inputLayer)
     {
         Matrix<T> output = inputLayer;
         vector<Matrix<T>> outputs;
-        outputs.push_back(inputLayer);
+        outputs.push_back(output);
 
         for (int i = 0; i < layersNums.size() - 1; i++)
         {
@@ -121,38 +133,79 @@ public:
         return outputs;
     }
 
-    T loss()
+    T loss(vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths)
     {
-       T loss = 0;
+        clock_t start = clock();
+        cout << "loss start: " << endl;
+        cout << "testGroundTruths.size(): " << testGroundTruths.size() << endl;
+        T loss = 0;
 
-        for (int i = 0; i < goundTruth.getColSize(); i++)
+        for (int i = 0; i < testInputs.size(); i++)
         {
-            loss += pow(goundTruth.getMatrix()[i][0] - outputs()[outputs().size() - 1].getMatrix()[i][0], 2.0f);
+            T singleLoss = 0;
+            vector<Matrix<T>> _outputs = outputs(testInputs[i]);
+            for (int j = 0; j < testGroundTruths[i].getColSize(); ++j)
+            {
+                singleLoss += pow(testGroundTruths[i].getMatrix()[j][0] - _outputs[_outputs.size() - 1].getMatrix()[j][0], 2.0f);
+            }
+            singleLoss /= 2;
+            loss += singleLoss;
         }
-        return loss/2;
+        loss /= testInputs.size();
+        clock_t end = clock();
+
+        cout << "loss take: " << (end - start) / (double) CLOCKS_PER_SEC << " sec." << endl;
+        return loss;
     }
 
-    void update()
+    void update(vector<Matrix<T>> batchInputLayer, vector<Matrix<T>> batchGroundTruths)
     {
-        vector<Matrix<T>> _outputs = outputs();
-        vector<Matrix<T>> _errors = errors(_outputs);
-        for (int i = 0; i < layersNums.size() - 1; ++i)
+        clock_t start = clock();
+        cout << "update start: " << endl;
+
+        vector<Matrix<T>> batchWeightGradient;
+        vector<Matrix<T>> batchBiasGradient;
+
+        for (int k = 0; k < layersNums.size() - 1; ++k)
         {
-            weights[i] = weights[i] - matrixXMatrixT(_errors[i], _outputs[i]);
-            biases[i] = biases[i] - _errors[i];
+            Matrix<T> emptyWeight(weights[k].getColSize(),weights[k].getRowSize());
+            Matrix<T> emptyBias(biases[k].getColSize(),biases[k].getRowSize());
+
+            batchWeightGradient.push_back(emptyWeight);
+            batchBiasGradient.push_back(emptyBias);
         }
+
+        for (int i = 0; i < batchInputLayer.size(); ++i)
+        {
+            vector<Matrix<T>> _outputs = outputs(batchInputLayer[i]);
+            vector<Matrix<T>> _errors = errors(_outputs, batchGroundTruths[i]);
+
+            for (int j = 0; j < layersNums.size() - 1; ++j)
+            {
+
+                batchWeightGradient[j] = batchWeightGradient[j] + (matrixXMatrixT(_errors[j], _outputs[j]));
+                batchBiasGradient[j] = batchBiasGradient[j] + _errors[j];
+
+            }
+        }
+
+        for (int l = 0; l < layersNums.size() - 1; ++l)
+        {
+            weights[l] = weights[l] - batchWeightGradient[l] * learningRate /  batchInputLayer.size();
+            biases[l] = biases[l] - batchBiasGradient[l] * learningRate /  batchInputLayer.size();
+        }
+
+        clock_t end = clock();
+
+        cout << "update take: " << (end - start) / (double) CLOCKS_PER_SEC << " sec." << endl;
+
     }
 
-//    vector<vector<Matrix<T>>> batchErrors()
-//    {
-//        vector<vector<Matrix<T>>> _batchErrors;
-//    }
-
-    vector<Matrix<T>> errors(vector<Matrix<T>> outputs)
+    vector<Matrix<T>> errors(vector<Matrix<T>> outputs, Matrix<T> groundTruth)
     {
         vector<Matrix<T>> errors;
 
-        Matrix<T> errorTmp = lastError(outputs[outputs.size()-1]);
+        Matrix<T> errorTmp = lastError(outputs[outputs.size()-1], groundTruth);
         errors.push_back(errorTmp);
 
         for (int i = layersNums.size() - 2; i > 0; --i)
@@ -162,6 +215,40 @@ public:
         }
         return errors;
 
+    }
+
+    void train()
+    {
+        vector<int> index;
+        for (int i = 0; i < groundTruths.size(); ++i)
+        {
+            index.push_back(i);
+        }
+
+        default_random_engine randEngine(time(NULL));
+        shuffle(begin(index), end(index), randEngine);
+        cout << "Training start:" << endl;
+        for (int i = 0; i < groundTruths.size() / batchSize + 1; ++i)
+        {
+            vector<Matrix<T>> batchInputLayer;
+            vector<Matrix<T>> batchGroundTruths;
+
+            int diff = (batchSize * i) - groundTruths.size();
+
+            cout << "(int)index.size(): " << (int)index.size() << endl;
+            for (int j = 0; j < min((int)index.size(), (int)(diff > 0 ? diff: batchSize)); ++j)
+            {
+                batchInputLayer.push_back(inputLayers[index[i * groundTruths.size() / batchSize + 1 + j]]);
+                batchGroundTruths.push_back(groundTruths[index[i * groundTruths.size() / batchSize + 1 + j]]);
+            }
+
+            cout << endl;
+
+            update(batchInputLayer, batchGroundTruths);
+            cout << "epoch " << i << " loss: " << loss(testInputs, testGroundTruths) << endl;
+
+        }
+        cout << "Training ended." << endl;
     }
 
     void weightsDebug()
@@ -186,8 +273,8 @@ public:
 
     void inputDebug()
     {
-        cout << "inputLayer: " << endl;
-        inputLayer.print();
+        cout << "inputLayers: " << endl;
+        inputLayers[0].print();
         cout << endl;
 
     }

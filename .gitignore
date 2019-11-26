@@ -32,3 +32,5 @@
 *.app
 
 CMakeList.txt
+cmake-build-debug
+cmake-build-debug-wsl

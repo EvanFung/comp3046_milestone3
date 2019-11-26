@@ -15,6 +15,7 @@ private:
 
 
 public:
+    const static int thread_count = 32;
 
     Matrix(){}
 
@@ -26,6 +27,11 @@ public:
     Matrix(float from, float to, int col, int row)
     {
         setRandom(from, to, col, row);
+    }
+
+    Matrix(int col, int row)
+    {
+        setZero(col, row);
     }
 
 	void set(vector<vector<T>> scalers, int col, int row)
@@ -42,6 +48,15 @@ public:
         vector<vector<T>> scalers = fillRandom(from, to);
         matrixData.assign(scalers.begin(), scalers.end());
     }
+
+    void setZero(int col, int row)
+    {
+        size[0] = col;
+        size[1] = row;
+        vector<vector<T>> scalers = fillZero();
+        matrixData.assign(scalers.begin(), scalers.end());
+    }
+
 
 	Matrix<T> transpose()
 	{
@@ -64,6 +79,7 @@ public:
 	{
         vector<vector<T>> tmp;
 
+        #pragma omp parallel for num_threads(thread_count)
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
@@ -87,7 +103,7 @@ public:
     Matrix constOp (T(*operation)(T,float), T constant)
     {
         vector<vector<T>> tmp;
-
+        #pragma omp parallel for num_threads(thread_count)
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
@@ -109,7 +125,7 @@ public:
     Matrix matrixDirOp (T(*operation)(T,float), Matrix m)
     {
         vector<vector<T>> tmp;
-
+        #pragma omp parallel for num_threads(thread_count)
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
@@ -136,13 +152,30 @@ public:
         realDist(randEngine);
 
         vector<vector<T>> tmp;
-
+        #pragma omp parallel for num_threads(thread_count)
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
             for (int j = 0; j < this->getRowSize(); j++)
             {
                 tmpRow.push_back(realDist(randEngine));
+            }
+            tmp.push_back(tmpRow);
+        }
+
+        return tmp;
+    }
+
+    vector<vector<T>> fillZero()
+    {
+        vector<vector<T>> tmp;
+#pragma omp parallel for num_threads(thread_count)
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            vector<T> tmpRow;
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                tmpRow.push_back(0.0);
             }
             tmp.push_back(tmpRow);
         }

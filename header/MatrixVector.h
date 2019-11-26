@@ -69,6 +69,8 @@ template <class T>
 Matrix<T> hadamardX(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
+
+    #pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < m1.getColSize(); ++i) {
         vector<T> tmpRow;
         for (int j = 0; j < m1.getRowSize(); ++j) {
@@ -91,7 +93,7 @@ template <class T>
 Matrix<T> matrixTXMatrix(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
-
+#pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < m1.getRowSize(); i++)
     {
         vector<T> tmpCol;
@@ -117,7 +119,7 @@ template <class T>
 Matrix<T> matrixXMatrixT(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
-
+#pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < m1.getColSize(); i++)
     {
         vector<T> tmpCol;
