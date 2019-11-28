@@ -69,10 +69,10 @@ template <class T>
 Matrix<T> hadamardX(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
-
-    #pragma omp parallel for num_threads(thread_count)
+    tmp.reserve(m1.getColSize());
     for (int i = 0; i < m1.getColSize(); ++i) {
         vector<T> tmpRow;
+        tmpRow.reserve(m1.getRowSize());
         for (int j = 0; j < m1.getRowSize(); ++j) {
             tmpRow.push_back(m1.getMatrix()[i][j] * m2.getMatrix()[i][j]);
         }
@@ -93,11 +93,11 @@ template <class T>
 Matrix<T> matrixTXMatrix(Matrix<T> m1, Matrix<T> m2)
 {
     vector<vector<T>> tmp;
-#pragma omp parallel for num_threads(thread_count)
+    tmp.reserve(m1.getRowSize());
     for (int i = 0; i < m1.getRowSize(); i++)
     {
         vector<T> tmpCol;
-
+        tmpCol.reserve(m2.getRowSize());
         for (int j = 0; j < m2.getRowSize(); j++)
         {
             T elem = 0;
@@ -116,14 +116,14 @@ Matrix<T> matrixTXMatrix(Matrix<T> m1, Matrix<T> m2)
 }
 
 template <class T>
-Matrix<T> matrixXMatrixT(Matrix<T> m1, Matrix<T> m2)
+void matrixXMatrixT(Matrix<T> &m1, Matrix<T> &m2, Matrix<T> &result)
 {
     vector<vector<T>> tmp;
-#pragma omp parallel for num_threads(thread_count)
+    tmp.reserve(m1.getColSize());
     for (int i = 0; i < m1.getColSize(); i++)
     {
         vector<T> tmpCol;
-
+        tmpCol.reserve(m2.getColSize());
         for (int j = 0; j < m2.getColSize(); j++)
         {
             T elem = 0;
@@ -137,6 +137,5 @@ Matrix<T> matrixXMatrixT(Matrix<T> m1, Matrix<T> m2)
         }
         tmp.push_back(tmpCol);
     }
-    Matrix<T> tmpMatrix(tmp, m1.getColSize(), m2.getColSize());
-    return tmpMatrix;
+    result.set(tmp, m1.getColSize(), m2.getColSize());
 }

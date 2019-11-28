@@ -13,7 +13,6 @@ private:
 	vector<vector<T>> matrixData;
 	int size[2] = { 0,0 };
 
-
 public:
     const static int thread_count = 32;
 
@@ -38,7 +37,7 @@ public:
 	{
         size[0] = col;
         size[1] = row;
-		matrixData.assign(scalers.begin(), scalers.end());
+		matrixData = scalers;
 	}
 
     void setRandom(float from, float to, int col, int row)
@@ -61,13 +60,14 @@ public:
 	Matrix<T> transpose()
 	{
 		vector<vector<T>> tmp;
-
+        tmp.reserve(this->getRowSize());
 		for (int i = 0; i < this->getRowSize(); i++)
 		{
             vector<T> tmpRow;
+            tmpRow.reserve(this->getColSize());
 			for (int j = 0; j < this->getColSize(); j++)
 			{
-                tmpRow.push_back(matrixData[j][i]);
+                tmpRow.push_back(this->getMatrix()[j][i]);
 			}
             tmp.push_back(tmpRow);
 		}
@@ -75,23 +75,23 @@ public:
 		return tmpMatrix;
 	}
 
-	Matrix<T> operator * (const Matrix<T> m)
+	Matrix<T> operator * (Matrix<T> m)
 	{
         vector<vector<T>> tmp;
+        tmp.reserve(this->getColSize());
 
-        #pragma omp parallel for num_threads(thread_count)
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
+            tmpRow.reserve(m.getRowSize());
+
             for (int j = 0; j < m.getRowSize(); j++)
             {
                 T elem = 0;
-
                 for (int k = 0; k < this->getRowSize(); k++)
                 {
                     elem += this->getMatrix()[i][k] * m.getMatrix()[k][j];
                 }
-
                 tmpRow.push_back(elem);
             }
             tmp.push_back(tmpRow);
@@ -100,16 +100,17 @@ public:
         return tmpMatrix;
 	}
 
-    Matrix constOp (T(*operation)(T,float), T constant)
+    Matrix operator * (T constant)
     {
         vector<vector<T>> tmp;
-        #pragma omp parallel for num_threads(thread_count)
+        tmp.reserve(this->getColSize());
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
+            tmpRow.reserve(this->getRowSize());
             for (int j = 0; j < this->getRowSize(); j++)
             {
-                tmpRow.push_back(operation(matrixData[i][j], constant));
+                tmpRow.push_back(this->getMatrix()[i][j] * constant);
             }
             tmp.push_back(tmpRow);
         }
@@ -117,21 +118,17 @@ public:
         return tmpMatrix;
     }
 
-    Matrix operator * (const float constant){return constOp(&constMulOp, constant);}
-    static T constMulOp(T tar, float constant){return tar * constant;}
-    Matrix operator / (const float constant){return constOp(&constDivOp, constant);}
-    static T constDivOp(T tar, float constant){return tar / constant;}
-
-    Matrix matrixDirOp (T(*operation)(T,float), Matrix m)
+    Matrix operator / (T constant)
     {
         vector<vector<T>> tmp;
-        #pragma omp parallel for num_threads(thread_count)
+        tmp.reserve(this->getColSize());
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
+            tmpRow.reserve(this->getRowSize());
             for (int j = 0; j < this->getRowSize(); j++)
             {
-                tmpRow.push_back(operation(matrixData[i][j], m.matrixData[i][j]));
+                tmpRow.push_back(this->getMatrix()[i][j] / constant);
             }
             tmp.push_back(tmpRow);
         }
@@ -139,11 +136,41 @@ public:
         return tmpMatrix;
     }
 
-    Matrix operator + (const Matrix m){return matrixDirOp(&matrixAddOp, m);}
-    static T matrixAddOp(T tar, float constant){return tar + constant;}
+    Matrix operator + (Matrix m)
+    {
+        vector<vector<T>> tmp;
+        tmp.reserve(this->getColSize());
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            vector<T> tmpRow;
+            tmpRow.reserve(this->getRowSize());
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                tmpRow.push_back(this->getMatrix()[i][j] + m.getMatrix()[i][j]);
+            }
+            tmp.push_back(tmpRow);
+        }
+        Matrix<T> tmpMatrix(tmp, this->getColSize(), this->getRowSize());
+        return tmpMatrix;
+    }
 
-    Matrix operator - (const Matrix m){return matrixDirOp(&matrixSupOp, m);}
-    static T matrixSupOp(T tar, float constant){return tar - constant;}
+    Matrix  operator - (Matrix m)
+    {
+        vector<vector<T>> tmp;
+        tmp.reserve(this->getColSize());
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            vector<T> tmpRow;
+            tmpRow.reserve(this->getRowSize());
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                tmpRow.push_back(this->getMatrix()[i][j]- m.getMatrix()[i][j]);
+            }
+            tmp.push_back(tmpRow);
+        }
+        Matrix<T> tmpMatrix(tmp, this->getColSize(), this->getRowSize());
+        return tmpMatrix;
+    }
 
     vector<vector<T>> fillRandom(float from, float to)
     {
@@ -152,10 +179,11 @@ public:
         realDist(randEngine);
 
         vector<vector<T>> tmp;
-        #pragma omp parallel for num_threads(thread_count)
+        tmp.reserve(this->getColSize());
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
+            tmpRow.reserve(this->getRowSize());
             for (int j = 0; j < this->getRowSize(); j++)
             {
                 tmpRow.push_back(realDist(randEngine));
@@ -169,14 +197,11 @@ public:
     vector<vector<T>> fillZero()
     {
         vector<vector<T>> tmp;
-#pragma omp parallel for num_threads(thread_count)
+        tmp.reserve(this->getColSize());
         for (int i = 0; i < this->getColSize(); i++)
         {
             vector<T> tmpRow;
-            for (int j = 0; j < this->getRowSize(); j++)
-            {
-                tmpRow.push_back(0.0);
-            }
+            tmpRow.resize(this->getRowSize());
             tmp.push_back(tmpRow);
         }
 
@@ -193,7 +218,7 @@ public:
         return size[1];
     }
 
-	vector<vector<T>> getMatrix() const
+	vector<vector<T>>& getMatrix()
     {
 		return matrixData;
 	}
