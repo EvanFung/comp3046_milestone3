@@ -11,10 +11,12 @@
 #include <list>
 #include <omp.h>
 #include <stdexcept>
+#include <iostream>
+#include <fstream>
+#include <sys/stat.h>
 #include "../header/MatrixVector.h"
 
 using namespace std;
-
 template <class T>
 class NeuralNetwork
 {
@@ -49,8 +51,6 @@ private:
         Matrix actives = activation(weights[layerIndex] * preLayer + biases[layerIndex]);
         return actives;
     }
-
-
 
     void layerError(Matrix<T> &postWeights, Matrix<T> &postError, Matrix<T> &output, Matrix<T> &error)
     {
@@ -94,29 +94,6 @@ private:
         return actives;
     }
 
-public:
-
-    //inputLayers take column Matrix.
-    NeuralNetwork(vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths, vector<int> hiddenLayersNums)
-    {
-        if(testInputs.size() != testGroundTruths.size())
-        {
-            cout << "number of inputs: " << testInputs.size() << endl;
-            cout << "number of ground truths: " << testGroundTruths.size() << endl;
-            throw invalid_argument( "number of inputs and ground truths not match!" );
-        }
-        this->layersNums.push_back(inputLayers[0].getColSize());
-        this->layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
-        this->layersNums.push_back(groundTruths[0].getColSize());
-        iniWeightsAndBiases();
-        this->inputLayers = inputLayers;
-        this->groundTruths =  groundTruths;
-
-        this->testInputs = testInputs;
-        this->testGroundTruths = testGroundTruths;
-
-    }
-
     void lastError(Matrix<T> &output, Matrix<T> &groundTruth, Matrix<T>&error)
     {
         error = hadamardX((output - groundTruth), activationD(output));
@@ -134,13 +111,13 @@ public:
         }
     }
 
-    T loss(vector<Matrix<T>> &testInputs, vector<Matrix<T>> &testGroundTruths)
+    T loss()
     {
         T loss = 0;
         int total = testGroundTruths.size();
         int corr = total;
 
-        #pragma omp parallel for default(none) shared(total, testInputs, testGroundTruths) reduction( +:loss) reduction( -: corr)
+        #pragma omp parallel for default(none) shared(total) reduction( +:loss) reduction( -: corr)
         for (int i = 0; i < total; i++)
         {
             T singleLoss = 0;
@@ -149,7 +126,7 @@ public:
 
             if(!groundTruthCompare(_outputs[_outputs.size() - 1], testGroundTruths[i])) corr--;
 
-            #pragma omp parallel for default(none) shared(_outputs, testInputs, testGroundTruths, i) reduction( +:singleLoss)
+            #pragma omp parallel for default(none) shared(_outputs, i) reduction( +:singleLoss)
             for (int j = 0; j < testGroundTruths[i].getColSize(); ++j)
             {
                 singleLoss += pow(testGroundTruths[i].getMatrix()[j][0] - _outputs[_outputs.size() - 1].getMatrix()[j][0], 2.0f);
@@ -168,7 +145,7 @@ public:
     {
         for (int i = 0; i < lastLayers.getColSize(); ++i)
         {
-            if(round(lastLayers.getMatrix()[i][0]) != round(groundTruth.getMatrix()[i][0]))
+            if(round(lastLayers.getMatrix()[i][0]) != groundTruth.getMatrix()[i][0])
             {
                 return  false;
             }
@@ -246,7 +223,108 @@ public:
         for (Matrix<T> const &e: errorsList) {
             _errors.push_back(e);
         }
+    }
 
+    void toSaveForm(vector<Matrix<T>> &vMs, string &_output)
+    {
+        stringstream ss;
+        ss << vMs.size() << endl << endl;
+        for (int i = 0; i < vMs.size(); ++i)
+        {
+            ss << vMs[i].toString() << endl;
+        }
+        _output.append(ss.str());
+    }
+
+    void toSaveForm(vector<int> &vInts, string &_output)
+    {
+        stringstream ss;
+        for (int vInt : vInts)
+        {
+            ss << to_string(vInt) << endl;
+        }
+        ss << endl;
+        _output.append(ss.str());
+    }
+
+public:
+
+    //inputLayers take column Matrix.
+    NeuralNetwork(vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths, vector<int> hiddenLayersNums)
+    {
+        if(inputLayers.size() != groundTruths.size())
+        {
+            cout << "number of inputs: " << inputLayers.size() << endl;
+            cout << "number of ground truths: " << groundTruths.size() << endl;
+            throw invalid_argument( "number of inputs and ground truths not match!" );
+        }
+
+        if(testInputs.size() != testGroundTruths.size())
+        {
+            cout << "number of test inputs: " << testInputs.size() << endl;
+            cout << "number of test ground truths: " << testGroundTruths.size() << endl;
+            throw invalid_argument( "number of test inputs and ground truths not match!" );
+        }
+
+        this->layersNums.push_back(inputLayers[0].getColSize());
+        this->layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
+        this->layersNums.push_back(groundTruths[0].getColSize());
+        iniWeightsAndBiases();
+        this->inputLayers = inputLayers;
+        this->groundTruths =  groundTruths;
+
+        this->testInputs = testInputs;
+        this->testGroundTruths = testGroundTruths;
+    }
+
+    NeuralNetwork(const string& location, vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths)
+    {
+        if(inputLayers.size() != groundTruths.size())
+        {
+            cout << "number of inputs: " << inputLayers.size() << endl;
+            cout << "number of ground truths: " << groundTruths.size() << endl;
+            throw invalid_argument( "number of inputs and ground truths not match!" );
+        }
+
+        if(testInputs.size() != testGroundTruths.size())
+        {
+            cout << "number of test inputs: " << testInputs.size() << endl;
+            cout << "number of test ground truths: " << testGroundTruths.size() << endl;
+            throw invalid_argument( "number of test inputs and ground truths not match!" );
+        }
+
+        load(location);
+
+        this->inputLayers = inputLayers;
+        this->groundTruths =  groundTruths;
+
+        this->testInputs = testInputs;
+        this->testGroundTruths = testGroundTruths;
+    }
+
+    void printLayersNums()
+    {
+        for (int num: layersNums)
+        {
+            cout << num << endl;
+        }
+    }
+
+    void printWeights()
+    {
+        int i = 0;
+        for (Matrix<T> m: weights)
+        {
+            m.print();
+        }
+    }
+
+    void printBiases()
+    {
+        for (Matrix<T> m: biases)
+        {
+            m.print();
+        }
     }
 
     void train(int totalEpoch , int batchSize, T learningRate)
@@ -300,7 +378,7 @@ public:
                 if(lossDisplayCounter == 10 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 5 )
                 {
                     cout << endl;
-                    T _loss = loss(testInputs, testGroundTruths);
+                    T _loss = loss();
                     cout << "epoch " << epoch + 1 << " loss: " << _loss << endl;
                     cout << endl;
                     lossDisplayTime = clock();
@@ -317,7 +395,7 @@ public:
         cout << "Batch size:" <<  batchSize << endl;
         cout << "Learning rate:" <<  learningRate << endl;
 
-        int time = (clock() - startTime) / CLOCKS_PER_SEC;
+        int time = (clock() - (double)startTime) / CLOCKS_PER_SEC;
 
         int hour = time/3600;
         int min = (time%3600) / 60;
@@ -325,7 +403,106 @@ public:
 
         cout << "Used time: " << hour << " hours " << min << " mins " << sec << " secs " << endl;
         cout << endl;
-        T _loss = loss(testInputs, testGroundTruths);
+        T _loss = loss();
         cout << "epoch " << epoch << " loss: " << _loss << endl;
+
+
     }
+
+    void save(const string& location, const string& name)
+    {
+        string saveData;
+
+        toSaveForm(layersNums, saveData);
+        toSaveForm(weights, saveData);
+        toSaveForm(biases, saveData);
+
+        stringstream ss(location);
+
+        string folders, folder;
+        while(getline(ss, folder, '/'))
+        {
+            folders += folder;
+            mkdir(folders.c_str());
+            folders += "/";
+        }
+
+        ofstream data(ss.str() += "/" + name + ".ann");
+
+        data << saveData;
+        data.close();
+   }
+
+    void load(const string& location)
+    {
+        ifstream data(location);
+
+        if (data.is_open())
+        {
+            cout << "Loading data ...\n";
+
+            string line;
+
+            layersNums.clear();
+            weights.clear();
+            biases.clear();
+
+            while(getline(data, line) && !line.empty()) {
+                stringstream ss(line);
+                int layersNum;
+                ss >> layersNum;
+                layersNums.push_back(layersNum);
+            }
+
+            loadItems(weights, data);
+            loadItems(biases, data);
+
+            data.close();
+            cout << "Loading data finished.\n";
+        }
+        else
+            cout << "Unable to open file" << '\n';
+    }
+
+    void loadItems(vector<Matrix<T>> &matrices, ifstream &data)
+    {
+        string line;
+        getline(data, line);
+        stringstream ss(line);
+        int count;
+        ss >> count;
+        loadMatrices(matrices,data, count);
+    }
+
+    void loadMatrices(vector<Matrix<T>> &matrices, ifstream &data, int count)
+    {
+        string line;
+        getline(data, line);
+        for (int i = 0; i < count; ++i)
+        {
+            vector<vector<T>> matrixCol;
+
+            while(getline(data, line))
+            {
+
+                if(line.empty()) break;
+                vector<T> matrixRow;
+                T value;
+                stringstream ss(line);
+
+                while(true)
+                {
+                    ss >> value;
+                    if(ss.fail()) break;
+                    matrixRow.push_back(value);
+                }
+                matrixCol.push_back(matrixRow);
+            }
+            Matrix<T> matrix(matrixCol);
+            matrices.push_back(matrix);
+
+        }
+
+    }
+
 };

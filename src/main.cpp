@@ -8,85 +8,41 @@
 using namespace std;
 
 template <class T>
-void dataloader(vector<Matrix<T>> &, vector<Matrix<T>> &, string);
+void dataLoader(vector<Matrix<T>> &, vector<Matrix<T>> &, string);
 
 int main() {
-
-//    Matrix<float> m1({{5.0, 6.0, 7.0, 8.0}, {9.0, 10.0, 11.0, 12.0}}, 2, 4);
-//    Matrix<float> m2({{1.0, 2.0, 3.0, 4.0}, {5.0, 6.0, 7.0, 8.0}, {9.0, 10.0, 11.0, 12.0}}, 3, 4);
-//
-//    Matrix<float> m3({{5.0, 6.0, 7.0, 8.0}, {9.0, 10.0, 11.0, 12.0}, {9.0, 10.0, 11.0, 12.0}}, 3, 4);
-//    Matrix<float> m4({{1.0, 2.0, 3.0, 4.0}, {5.0, 6.0, 7.0, 8.0}, {9.0, 10.0, 11.0, 12.0}}, 3, 4);
-//    m2.transpose().print();
-//    cout << endl;
-//    (m1*m2.transpose()).print();
-//    cout << endl;
-//    (matrixXMatrixT(m1,m2)).print();
-//    cout << endl;
-//
-//
-//    (m3.transpose()*m4).print();
-//    cout << endl;
-//    (matrixTXMatrix(m3,m4)).print();
-//    cout << endl;
-
-//    vector<Matrix<float>> testMatrices;
-//    for (int i = 0; i < 10; ++i)
-//    {
-//        Matrix<float> test(-0.5,0.5,9,1);
-//        testMatrices.push_back(test);
-//    }
-//
-//    vector<Matrix<float>> gTMatrices;
-//    {
-//        for (int i = 0; i < 10; ++i) {
-//            vector<vector<float>> tmpYCol;
-//            for (int j = 0; j < 10; j++)
-//            {
-//                vector<float> tmpYRow;
-//                tmpYRow.push_back((j == i)? 1:0);
-//                tmpYCol.push_back(tmpYRow);
-//            }
-//            Matrix<float> test(tmpYCol, 10,1);
-//            gTMatrices.push_back(test);
-//        }
-//    }
 
     vector<Matrix<float>> X_train;
     vector<Matrix<float>> Y_train;
     vector<Matrix<float>> X_test;
     vector<Matrix<float>> Y_test;
-    dataloader(X_train, Y_train, "../data/train.txt");
-    dataloader(X_test, Y_test, "../data/train_small.txt");
+    dataLoader(X_train, Y_train, "../data/train.txt");
+    dataLoader(X_test, Y_test, "../data/test.txt");
 
     NeuralNetwork<float> neuralNetwork(X_train, Y_train, X_test, Y_test, {100,50,25});
 
-    neuralNetwork.train(10000,128,1);
-
-    //neuralNetwork.update()
-
-    //neuralNetwork.update();
-
-    //Matrix<float> m1(-1,1,10,3000);
-    //Matrix<float> m2(-1,1,3000,1);
-
-    //m1 * m2;
+    neuralNetwork.train(10,128,1);
+    neuralNetwork.save("save", "train");
+    neuralNetwork.load("save/train.ann");
+    neuralNetwork.train(10,128,1);
+    neuralNetwork.save("save", "train");
     return 0;
 
 }
 
-template <class T>
-void dataloader(vector<Matrix<T>> &X_train, vector<Matrix<T>> &Y_train, string filePath)
-{
-    ifstream myfile(filePath);
 
-    if (myfile.is_open())
+template <class T>
+void dataLoader(vector<Matrix<T>> &X_train, vector<Matrix<T>> &Y_train, string filePath)
+{
+    ifstream myFile(filePath);
+
+    if (myFile.is_open())
     {
         cout << "Loading data ...\n";
         string line;
         vector<T> Y_trainWithNum;
 
-        while (getline(myfile, line))
+        while (getline(myFile, line))
         {
             int x, y;
             stringstream ss(line);
@@ -104,8 +60,6 @@ void dataloader(vector<Matrix<T>> &X_train, vector<Matrix<T>> &Y_train, string f
             X_train.push_back(tmpX);
         }
 
-
-
         for (int k = 0; k < Y_trainWithNum.size(); ++k)
         {
             vector<vector<T>> tmpYCol;
@@ -120,7 +74,7 @@ void dataloader(vector<Matrix<T>> &X_train, vector<Matrix<T>> &Y_train, string f
         }
 
 
-        myfile.close();
+        myFile.close();
 
 
         cout << "Loading data finished.\n";

@@ -2,6 +2,10 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <stdexcept>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -17,6 +21,11 @@ public:
     const static int thread_count = 32;
 
     Matrix(){}
+
+    Matrix(vector<vector<T>> scalers)
+    {
+        set(scalers, scalers.size(), scalers[0].size());
+    }
 
     Matrix(vector<vector<T>> scalers, int col, int row)
 	{
@@ -98,7 +107,7 @@ public:
         }
         Matrix<T> tmpMatrix(tmp, this->getColSize(), m.getRowSize());
         return tmpMatrix;
-	}
+    }
 
     Matrix operator * (T constant)
     {
@@ -225,16 +234,30 @@ public:
 
 	void print()
 	{
-		for (int i = 0; i < this->getColSize(); i++)
-		{
-			for (int j = 0; j < this->getRowSize(); j++)
-			{
-			    printf("%10.4f", matrixData[i][j]);
-			}
-			cout << endl;
-		}
-
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                printf("%10.4f", matrixData[i][j]);
+            }
+            cout << endl;
+        }
 	}
+
+	string toString()
+    {
+        stringstream ss;
+        for (int i = 0; i < this->getColSize(); i++)
+        {
+            for (int j = 0; j < this->getRowSize(); j++)
+            {
+                ss << matrixData[i][j] << " ";
+            }
+            ss << endl;
+        }
+        return ss.str();
+    }
+
 
 };
 
