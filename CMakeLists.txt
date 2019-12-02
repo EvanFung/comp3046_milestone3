@@ -10,6 +10,6 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-add_executable(COMP3046_Milestone_3 src/main.cpp src/NeuralNetwork.cpp)
+add_executable(annTraining src/main.cpp src/NeuralNetwork.cpp)
 
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)

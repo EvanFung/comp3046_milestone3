@@ -12,21 +12,146 @@ void dataLoader(vector<Matrix<T>> &, vector<Matrix<T>> &, string);
 
 int main() {
 
+    NeuralNetwork<float> neuralNetwork;
     vector<Matrix<float>> X_train;
     vector<Matrix<float>> Y_train;
     vector<Matrix<float>> X_test;
     vector<Matrix<float>> Y_test;
-    dataLoader(X_train, Y_train, "../data/train.txt");
-    dataLoader(X_test, Y_test, "../data/test.txt");
+    bool loaded = false;
 
-    NeuralNetwork<float> neuralNetwork(X_train, Y_train, X_test, Y_test, {100,50,25});
+//    dataLoader(X_train, Y_train, "../data/test.txt");
+//    dataLoader(X_test, Y_test, "../data/test.txt");
+//
+//    NeuralNetwork<float> neuralNetwork(X_train, Y_train, X_test, Y_test, {100,50,25});
+//
+//    neuralNetwork.samplePredict();
 
-    neuralNetwork.train(10,128,1);
-    neuralNetwork.save("save", "train");
-    neuralNetwork.load("save/train.ann");
-    neuralNetwork.train(10,128,1);
-    neuralNetwork.save("save", "train");
-    return 0;
+    //neuralNetwork.train(10,128,1);
+    //neuralNetwork.save("save", "train");
+    //neuralNetwork.load("save/train.ann");
+    //neuralNetwork.train(10,128,1);
+    //neuralNetwork.save("save", "train");
+
+    while(true)
+    {
+        cout << "new: Create new neural network. \t " << endl;
+        cout << "load: Load neural network. \t " << endl;
+        if(loaded)
+        {
+            cout << "train: Train the neural network. \t " << endl;
+            cout << "predict: Predict a random data from test data. \t " << endl;
+            cout << "predictAll: Predict all data from test data. \t " << endl;
+        }
+        cout << "exit: Exit. \t " << endl;
+
+        string input;
+        cin >> input;
+
+        if(input == "new")
+        {
+            string dataPath, trainPath, hiddenLayerSizeString;
+            vector<int> hiddenLayerSize;
+            cout << "Input these for default: " << endl;
+            cout << "../data/train_small.txt ../data/train_small.txt 100,50,25" << endl;
+            cout << endl;
+
+            cout << "Training Data Path: (e.g. ../data/train.txt)" << endl;
+            cin >> dataPath;
+
+            cout << "Test Data Path: (e.g. ../data/test.txt)" << endl;
+            cin >> trainPath;
+
+            cout << "Hidden layer sizes: (e.g. 100,50,25)" << endl;
+            cin >> hiddenLayerSizeString;
+            {
+                int size;
+                char comma;
+                stringstream ss(hiddenLayerSizeString);
+                while (ss >> size) {
+                    ss >> comma;
+                    hiddenLayerSize.push_back(size);
+                }
+            }
+            dataLoader(X_train, Y_train, dataPath);
+            dataLoader(X_test, Y_test, trainPath);
+            neuralNetwork.set(X_train, Y_train, X_test, Y_test, hiddenLayerSize);
+            loaded = true;
+            cout << "Created!" << endl;
+            cout << endl;
+        }
+        else if(input == "load")
+        {
+            string dataPath, trainPath, loadPath;
+            vector<int> hiddenLayerSize;
+            cout << "Input these for default: " << endl;
+            cout << "../data/train.txt ../data/test.txt save/train.ann" << endl;
+            cout << endl;
+
+            cout << "Training Data Path: (e.g. ../data/train.txt)" << endl;
+            cin >> dataPath;
+
+            cout << "Test Data Path: (e.g. ../data/test.txt)" << endl;
+            cin >> trainPath;
+
+            cout << "Weights and biases Path: (e.g. save/train.ann)" << endl;
+            cin >> loadPath;
+
+            dataLoader(X_train, Y_train, dataPath);
+            dataLoader(X_test, Y_test, trainPath);
+            neuralNetwork.set(loadPath, X_train, Y_train, X_test, Y_test);
+            loaded = true;
+            cout << "Loaded!" << endl;
+            cout << endl;
+        }
+        else if(input == "train" && loaded)
+        {
+            int batchSize = 128, epoch = 10000;
+            float learningRate = 1;
+            string saveLocation, saveName;
+            cout << "Input these for default: " << endl;
+            cout << "10000 128 1 save train" << endl;
+            cout << endl;
+
+
+            cout << "Epoch: (e.g. 10000)" << endl;
+            cin >> epoch;
+
+            cout << "Batch size: (e.g. 128)" << endl;
+            cin >> batchSize;
+
+            cout << "Learning rate: (e.g. 1)" << endl;
+            cin >> learningRate;
+
+            cout << "Save location: (e.g. save)" << endl;
+            cin >> saveLocation;
+
+            cout << "Save name: (e.g. train)" << endl;
+            cin >> saveName;
+
+            neuralNetwork.train(epoch, batchSize, learningRate, saveLocation, saveName);
+            cout << endl;
+        }
+        else if(input == "predict" && loaded)
+        {
+            neuralNetwork.samplePredict();
+            cout << endl;
+        }
+        else if(input == "predictAll" && loaded)
+        {
+            neuralNetwork.predictAll();
+            cout << endl;
+        }
+        else if(input == "exit")
+        {
+            cout << endl;
+            return 0;
+        }
+        else
+        {
+        cout << "invalid input." << endl;
+        cout << endl;
+        }
+    }
 
 }
 

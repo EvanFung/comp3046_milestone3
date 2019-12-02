@@ -124,7 +124,7 @@ private:
             vector<Matrix<T>> _outputs;
             outputs(testInputs[i], _outputs);
 
-            if(!groundTruthCompare(_outputs[_outputs.size() - 1], testGroundTruths[i])) corr--;
+            if(!gTCompare(_outputs[_outputs.size() - 1], testGroundTruths[i])) corr--;
 
             #pragma omp parallel for default(none) shared(_outputs, i) reduction( +:singleLoss)
             for (int j = 0; j < testGroundTruths[i].getColSize(); ++j)
@@ -141,7 +141,7 @@ private:
         return loss;
     }
 
-    bool groundTruthCompare(Matrix<T> &lastLayers, Matrix<T> &groundTruth)
+    bool gTCompare(Matrix<T> &lastLayers, Matrix<T> &groundTruth)
     {
         for (int i = 0; i < lastLayers.getColSize(); ++i)
         {
@@ -151,6 +151,41 @@ private:
             }
         }
         return true;
+    }
+
+    int predict(Matrix<T> &inputLayer)
+    {
+        vector<Matrix<T>> output;
+        return predict(inputLayer, output);
+    }
+
+    int predict(Matrix<T> &inputLayer, vector<Matrix<T>> &output)
+    {
+        outputs(inputLayer, output);
+        T highest = 0.0;
+        int prediction = 0;
+        for (int i = 0; i < output[output.size() - 1].getColSize(); ++i)
+        {
+            if(output[output.size() - 1].getMatrix()[i][0] >= highest)
+            {
+                highest = output[output.size() - 1].getMatrix()[i][0];
+                prediction = i;
+            }
+        }
+        return prediction;
+    }
+
+    int gTMatrixToNumber(int index, vector<Matrix<T>> &gTSet)
+    {
+        int num = 0;
+        for (int i = 0; i < 10; ++i)
+        {
+            if(gTSet[index].getMatrix()[i][0] == 1)
+            {
+                num = i;
+            }
+        }
+        return num;
     }
 
     void update(vector<Matrix<T>> &batchInputLayer, vector<Matrix<T>> &batchGroundTruths, T learningRate)
@@ -249,35 +284,21 @@ private:
 
 public:
 
+
+    NeuralNetwork()= default;
     //inputLayers take column Matrix.
-    NeuralNetwork(vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths, vector<int> hiddenLayersNums)
+    NeuralNetwork(vector<Matrix<T>> inputLayers, vector<Matrix<T>> &groundTruths, vector<Matrix<T>> &testInputs, vector<Matrix<T>> &testGroundTruths, vector<int> &hiddenLayersNums)
     {
-        if(inputLayers.size() != groundTruths.size())
-        {
-            cout << "number of inputs: " << inputLayers.size() << endl;
-            cout << "number of ground truths: " << groundTruths.size() << endl;
-            throw invalid_argument( "number of inputs and ground truths not match!" );
-        }
-
-        if(testInputs.size() != testGroundTruths.size())
-        {
-            cout << "number of test inputs: " << testInputs.size() << endl;
-            cout << "number of test ground truths: " << testGroundTruths.size() << endl;
-            throw invalid_argument( "number of test inputs and ground truths not match!" );
-        }
-
-        this->layersNums.push_back(inputLayers[0].getColSize());
-        this->layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
-        this->layersNums.push_back(groundTruths[0].getColSize());
-        iniWeightsAndBiases();
-        this->inputLayers = inputLayers;
-        this->groundTruths =  groundTruths;
-
-        this->testInputs = testInputs;
-        this->testGroundTruths = testGroundTruths;
+        set(inputLayers, groundTruths, testInputs, testGroundTruths, hiddenLayersNums);
     }
 
-    NeuralNetwork(const string& location, vector<Matrix<T>> inputLayers, vector<Matrix<T>> groundTruths, vector<Matrix<T>> testInputs, vector<Matrix<T>> testGroundTruths)
+    NeuralNetwork(const string& location, vector<Matrix<T>> &inputLayers, vector<Matrix<T>> &groundTruths, vector<Matrix<T>> &testInputs, vector<Matrix<T>> &testGroundTruths)
+    {
+        set(location, inputLayers, groundTruths, testInputs, testGroundTruths);
+    }
+
+
+    void setTest(vector<Matrix<T>> &inputLayers, vector<Matrix<T>> &groundTruths, vector<Matrix<T>> &testInputs, vector<Matrix<T>> &testGroundTruths)
     {
         if(inputLayers.size() != groundTruths.size())
         {
@@ -292,14 +313,79 @@ public:
             cout << "number of test ground truths: " << testGroundTruths.size() << endl;
             throw invalid_argument( "number of test inputs and ground truths not match!" );
         }
+    }
+
+    void set(vector<Matrix<T>> &setInputLayers, vector<Matrix<T>> &setGroundTruths, vector<Matrix<T>> &setTestInputs, vector<Matrix<T>> &setTestGroundTruths, vector<int> &hiddenLayersNums)
+    {
+        setTest(setInputLayers, setGroundTruths, setTestInputs, setTestGroundTruths);
+
+        layersNums.push_back(setInputLayers[0].getColSize());
+        layersNums.insert(this->layersNums.end(), hiddenLayersNums.begin(), hiddenLayersNums.end());
+        layersNums.push_back(setGroundTruths[0].getColSize());
+        iniWeightsAndBiases();
+        inputLayers = setInputLayers;
+        groundTruths =  setGroundTruths;
+
+        testInputs = setTestInputs;
+        testGroundTruths = setTestGroundTruths;
+    }
+
+    void set(const string& location, vector<Matrix<T>> &setInputLayers, vector<Matrix<T>> &setGroundTruths, vector<Matrix<T>> &setTestInputs, vector<Matrix<T>> &setTestGroundTruths)
+    {
+        setTest(setInputLayers, setGroundTruths, setTestInputs, setTestGroundTruths);
 
         load(location);
 
-        this->inputLayers = inputLayers;
-        this->groundTruths =  groundTruths;
+        inputLayers = setInputLayers;
+        groundTruths = setGroundTruths;
 
-        this->testInputs = testInputs;
-        this->testGroundTruths = testGroundTruths;
+        testInputs = setTestInputs;
+        testGroundTruths = setTestGroundTruths;
+    }
+
+
+
+    void samplePredict()
+    {
+        default_random_engine randEngine(time(NULL));
+        uniform_int_distribution<int> intDist(0, testInputs.size() - 1);
+        intDist(randEngine);
+
+        int rand = intDist(randEngine);
+
+        vector<Matrix<T>> output;
+        int resultPredicted = predict(testInputs[rand], output);
+        int groundTruth = gTMatrixToNumber(rand, testGroundTruths);
+
+        cout << "resultPredicted: " << resultPredicted;
+        cout << "groundTruth: " << groundTruth;
+
+        cout << "Predicting " << rand <<  " data in testing pool." << endl;
+        cout << "Predicted result: " << resultPredicted << endl;
+        cout << "Ground truth: " << groundTruth << endl;
+        if(resultPredicted == groundTruth)
+        {
+            cout << "The prediction is correct." << endl;
+        }
+        else
+        {
+            cout << "The prediction is wrong." << endl;
+        }
+        cout << "Prediction matrix:" << endl;
+        output[output.size() - 1].transpose().print();
+        cout << "Ground truth matrix:" << endl;
+        testGroundTruths[rand].transpose().print();
+    }
+
+    void predictAll()
+    {
+        int correct = testInputs.size();
+        for (int i = 0; i < testInputs.size(); ++i)
+        {
+            if(predict(testInputs[i]) != gTMatrixToNumber(i, testGroundTruths)) correct--;
+        }
+        cout << "correct: " << correct << " / " << testInputs.size() << endl;
+        cout << "Correct percentage: " << (correct/(float)testInputs.size()) * 100 << "%" << endl;
     }
 
     void printLayersNums()
@@ -327,7 +413,7 @@ public:
         }
     }
 
-    void train(int totalEpoch , int batchSize, T learningRate)
+    void train(int totalEpoch , int batchSize, T learningRate, string saveLocation, string saveName)
     {
         int epoch = 0;
         vector<int> index;
@@ -375,7 +461,7 @@ public:
 
                 update(batchInputLayer, batchGroundTruths, learningRate);
 
-                if(lossDisplayCounter == 10 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 5 )
+                if(lossDisplayCounter == 30 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 20 )
                 {
                     cout << endl;
                     T _loss = loss();
@@ -383,6 +469,7 @@ public:
                     cout << endl;
                     lossDisplayTime = clock();
                     lossDisplayCounter = 0;
+                    save(saveLocation, saveName);
                 }
                 lossDisplayCounter ++;
                 epoch++;
@@ -433,7 +520,7 @@ public:
         data.close();
    }
 
-    void load(const string& location)
+    void load(const string &location)
     {
         ifstream data(location);
 

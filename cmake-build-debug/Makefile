@@ -110,17 +110,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named COMP3046_Milestone_3
+# Target rules for targets named annTraining
 
 # Build rule for target.
-COMP3046_Milestone_3: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 COMP3046_Milestone_3
-.PHONY : COMP3046_Milestone_3
+annTraining: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 annTraining
+.PHONY : annTraining
 
 # fast build rule for target.
-COMP3046_Milestone_3/fast:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/build
-.PHONY : COMP3046_Milestone_3/fast
+annTraining/fast:
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/build
+.PHONY : annTraining/fast
 
 src/NeuralNetwork.obj: src/NeuralNetwork.cpp.obj
 
@@ -128,7 +128,7 @@ src/NeuralNetwork.obj: src/NeuralNetwork.cpp.obj
 
 # target to build an object file
 src/NeuralNetwork.cpp.obj:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.obj
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/NeuralNetwork.cpp.obj
 .PHONY : src/NeuralNetwork.cpp.obj
 
 src/NeuralNetwork.i: src/NeuralNetwork.cpp.i
@@ -137,7 +137,7 @@ src/NeuralNetwork.i: src/NeuralNetwork.cpp.i
 
 # target to preprocess a source file
 src/NeuralNetwork.cpp.i:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.i
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/NeuralNetwork.cpp.i
 .PHONY : src/NeuralNetwork.cpp.i
 
 src/NeuralNetwork.s: src/NeuralNetwork.cpp.s
@@ -146,7 +146,7 @@ src/NeuralNetwork.s: src/NeuralNetwork.cpp.s
 
 # target to generate assembly for a file
 src/NeuralNetwork.cpp.s:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/NeuralNetwork.cpp.s
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/NeuralNetwork.cpp.s
 .PHONY : src/NeuralNetwork.cpp.s
 
 src/main.obj: src/main.cpp.obj
@@ -155,7 +155,7 @@ src/main.obj: src/main.cpp.obj
 
 # target to build an object file
 src/main.cpp.obj:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.obj
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/main.cpp.obj
 .PHONY : src/main.cpp.obj
 
 src/main.i: src/main.cpp.i
@@ -164,7 +164,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.i
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -173,7 +173,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) -f CMakeFiles\COMP3046_Milestone_3.dir\build.make CMakeFiles/COMP3046_Milestone_3.dir/src/main.cpp.s
+	$(MAKE) -f CMakeFiles\annTraining.dir\build.make CMakeFiles/annTraining.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 # Help Target
@@ -182,8 +182,8 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
+	@echo ... annTraining
 	@echo ... edit_cache
-	@echo ... COMP3046_Milestone_3
 	@echo ... rebuild_cache
 	@echo ... src/NeuralNetwork.obj
 	@echo ... src/NeuralNetwork.i
