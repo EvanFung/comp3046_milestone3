@@ -124,7 +124,8 @@ private:
             vector<Matrix<T>> _outputs;
             outputs(testInputs[i], _outputs);
 
-            if(!gTCompare(_outputs[_outputs.size() - 1], testGroundTruths[i])) corr--;
+            //if(!gTCompare(_outputs[_outputs.size() - 1], testGroundTruths[i])) corr--;
+            if(predictByOutput(_outputs[_outputs.size() - 1]) != gTMatrixToNumber(testGroundTruths[i])) corr--;
 
             #pragma omp parallel for default(none) shared(_outputs, i) reduction( +:singleLoss)
             for (int j = 0; j < testGroundTruths[i].getColSize(); ++j)
@@ -159,6 +160,21 @@ private:
         return predict(inputLayer, output);
     }
 
+    int predictByOutput(Matrix<T> &output)
+    {
+        T highest = 0.0;
+        int prediction = 0;
+        for (int i = 0; i < output.getColSize(); ++i)
+        {
+            if(output.getMatrix()[i][0] >= highest)
+            {
+                highest = output.getMatrix()[i][0];
+                prediction = i;
+            }
+        }
+        return prediction;
+    }
+
     int predict(Matrix<T> &inputLayer, vector<Matrix<T>> &output)
     {
         outputs(inputLayer, output);
@@ -175,12 +191,12 @@ private:
         return prediction;
     }
 
-    int gTMatrixToNumber(int index, vector<Matrix<T>> &gTSet)
+    int gTMatrixToNumber(Matrix<T> &gT)
     {
         int num = 0;
         for (int i = 0; i < 10; ++i)
         {
-            if(gTSet[index].getMatrix()[i][0] == 1)
+            if(gT.getMatrix()[i][0] == 1)
             {
                 num = i;
             }
@@ -355,10 +371,7 @@ public:
 
         vector<Matrix<T>> output;
         int resultPredicted = predict(testInputs[rand], output);
-        int groundTruth = gTMatrixToNumber(rand, testGroundTruths);
-
-        cout << "resultPredicted: " << resultPredicted;
-        cout << "groundTruth: " << groundTruth;
+        int groundTruth = gTMatrixToNumber(testGroundTruths[rand]);
 
         cout << "Predicting " << rand <<  " data in testing pool." << endl;
         cout << "Predicted result: " << resultPredicted << endl;
@@ -382,11 +395,57 @@ public:
         int correct = testInputs.size();
         for (int i = 0; i < testInputs.size(); ++i)
         {
-            if(predict(testInputs[i]) != gTMatrixToNumber(i, testGroundTruths)) correct--;
+            if(predict(testInputs[i]) != gTMatrixToNumber(testGroundTruths[i])) correct--;
         }
         cout << "correct: " << correct << " / " << testInputs.size() << endl;
         cout << "Correct percentage: " << (correct/(float)testInputs.size()) * 100 << "%" << endl;
     }
+
+
+    void predictToWrong()
+    {
+        vector<int> index;
+        for (int i = 0; i < testInputs.size(); ++i)
+        {
+            index.push_back(i);
+        }
+
+        default_random_engine randEngine(time(NULL));
+        shuffle(begin(index), end(index), randEngine);
+
+        int wrongIndex = -1;
+        int resultPredicted = -1;
+        int groundTruth = -1;
+
+        vector<Matrix<T>> output;
+        for (int i = 0; i < testInputs.size(); ++i)
+        {
+            resultPredicted = predict(testInputs[i], output);
+            groundTruth = gTMatrixToNumber(testGroundTruths[i]);
+            if(resultPredicted != groundTruth)
+            {
+                wrongIndex = i;
+                break;
+            }
+        }
+        if(wrongIndex == -1)
+        {
+            cout << "All correct!" << endl;
+        }
+        else
+        {
+            cout << "First wrong prediction: " << wrongIndex << endl;
+
+            cout << "Predicted result: " << resultPredicted << endl;
+            cout << "Ground truth: " << groundTruth << endl;
+
+            cout << "Prediction matrix:" << endl;
+            output[output.size() - 1].transpose().print();
+            cout << "Ground truth matrix:" << endl;
+            testGroundTruths[wrongIndex].transpose().print();
+        }
+
+}
 
     void printLayersNums()
     {
@@ -475,6 +534,7 @@ public:
                 epoch++;
             }
         }
+        save(saveLocation, saveName);
         cout << endl;
         cout << "Training ended." << endl;
         cout << "Trained with:" << endl;

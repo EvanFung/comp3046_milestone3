@@ -41,6 +41,7 @@ int main() {
             cout << "train: Train the neural network. \t " << endl;
             cout << "predict: Predict a random data from test data. \t " << endl;
             cout << "predictAll: Predict all data from test data. \t " << endl;
+            cout << "predictToWrong: Predict data from test data until find a wrong predict. \t " << endl;
         }
         cout << "exit: Exit. \t " << endl;
 
@@ -52,7 +53,7 @@ int main() {
             string dataPath, trainPath, hiddenLayerSizeString;
             vector<int> hiddenLayerSize;
             cout << "Input these for default: " << endl;
-            cout << "../data/train_small.txt ../data/train_small.txt 100,50,25" << endl;
+            cout << "../data/train.txt ../data/test.txt 100,50,25" << endl;
             cout << endl;
 
             cout << "Training Data Path: (e.g. ../data/train.txt)" << endl;
@@ -139,6 +140,11 @@ int main() {
         else if(input == "predictAll" && loaded)
         {
             neuralNetwork.predictAll();
+            cout << endl;
+        }
+        else if(input == "predictToWrong" && loaded)
+        {
+            neuralNetwork.predictToWrong();
             cout << endl;
         }
         else if(input == "exit")
