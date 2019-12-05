@@ -19,19 +19,6 @@ int main() {
     vector<Matrix<float>> Y_test;
     bool loaded = false;
 
-//    dataLoader(X_train, Y_train, "../data/test.txt");
-//    dataLoader(X_test, Y_test, "../data/test.txt");
-//
-//    NeuralNetwork<float> neuralNetwork(X_train, Y_train, X_test, Y_test, {100,50,25});
-//
-//    neuralNetwork.samplePredict();
-
-    //neuralNetwork.train(10,128,1);
-    //neuralNetwork.save("save", "train");
-    //neuralNetwork.load("save/train.ann");
-    //neuralNetwork.train(10,128,1);
-    //neuralNetwork.save("save", "train");
-
     while(true)
     {
         cout << "new: Create new neural network. \t " << endl;
@@ -53,7 +40,7 @@ int main() {
             string dataPath, trainPath, hiddenLayerSizeString;
             vector<int> hiddenLayerSize;
             cout << "Input these for default: " << endl;
-            cout << "../data/train.txt ../data/test.txt 100,50,25" << endl;
+            cout << "../data/train.txt ../data/test.txt 30" << endl;
             cout << endl;
 
             cout << "Training Data Path: (e.g. ../data/train.txt)" << endl;
@@ -62,7 +49,7 @@ int main() {
             cout << "Test Data Path: (e.g. ../data/test.txt)" << endl;
             cin >> trainPath;
 
-            cout << "Hidden layer sizes: (e.g. 100,50,25)" << endl;
+            cout << "Hidden layer sizes: (e.g. 30)" << endl;
             cin >> hiddenLayerSizeString;
             {
                 int size;
@@ -110,11 +97,11 @@ int main() {
             float learningRate = 1;
             string saveLocation, saveName;
             cout << "Input these for default: " << endl;
-            cout << "10000 128 1 save train" << endl;
+            cout << "20 128 1 save train" << endl;
             cout << endl;
 
 
-            cout << "Epoch: (e.g. 10000)" << endl;
+            cout << "Epoch: (e.g. 20)" << endl;
             cin >> epoch;
 
             cout << "Batch size: (e.g. 128)" << endl;

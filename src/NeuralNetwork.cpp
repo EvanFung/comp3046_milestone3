@@ -226,8 +226,8 @@ private:
         {
             //cout << "i: " << i << endl;
             vector<Matrix<T>> _outputs;
-
             outputs(batchInputLayer[i], _outputs);
+
             vector<Matrix<T>> _errors;
             errors(_outputs, batchGroundTruths[i], _errors);
 
@@ -257,7 +257,6 @@ private:
 
     void errors(vector<Matrix<T>> &outputs, Matrix<T> &groundTruth, vector<Matrix<T>>& _errors)
     {
-
         _errors.reserve(layersNums.size() - 1);
 
         list<Matrix<T>> errorsList;
@@ -359,8 +358,6 @@ public:
         testGroundTruths = setTestGroundTruths;
     }
 
-
-
     void samplePredict()
     {
         default_random_engine randEngine(time(NULL));
@@ -400,7 +397,6 @@ public:
         cout << "correct: " << correct << " / " << testInputs.size() << endl;
         cout << "Correct percentage: " << (correct/(float)testInputs.size()) * 100 << "%" << endl;
     }
-
 
     void predictToWrong()
     {
@@ -474,7 +470,7 @@ public:
 
     void train(int totalEpoch , int batchSize, T learningRate, string saveLocation, string saveName)
     {
-        int epoch = 0;
+
         vector<int> index;
         for (int i = 0; i < groundTruths.size(); ++i)
         {
@@ -500,38 +496,40 @@ public:
         double startTime = clock();
         double lossDisplayTime = clock();
         int lossDisplayCounter = 0;
-        for (; epoch < totalEpoch ;)
+        for ( int epoch = 0; epoch < totalEpoch; epoch++)
         {
             default_random_engine randEngine(time(NULL));
             shuffle(begin(index), end(index), randEngine);
 
-            for (int i = 0; i < inputLayers.size() / batchSize && epoch < totalEpoch; ++i)
+
+
+            for (int i = 0; i < inputLayers.size() / batchSize + 1; ++i)
             {
-                vector<Matrix<T>> batchInputLayer;
+                vector<Matrix<T>> batchInputLayers;
                 vector<Matrix<T>> batchGroundTruths;
 
-                for (int j = 0; j < batchSize; ++j)
+                for (int j = 0; j < batchSize && (i * batchSize + j) < inputLayers.size(); ++j)
                 {
-                    batchInputLayer.push_back(inputLayers[index[i * batchSize + j]]);
+                    batchInputLayers.push_back(inputLayers[index[i * batchSize + j]]);
                     batchGroundTruths.push_back(groundTruths[index[i * batchSize + j]]);
                 }
 
-                cout << "epoch " << epoch + 1 << " ";
+                cout << "epoch: " << epoch + 1 << " batch: " << i + 1 << endl;
 
-                update(batchInputLayer, batchGroundTruths, learningRate);
+                update(batchInputLayers, batchGroundTruths, learningRate);
 
                 if(lossDisplayCounter == 30 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 20 )
                 {
                     cout << endl;
                     T _loss = loss();
-                    cout << "epoch " << epoch + 1 << " loss: " << _loss << endl;
+                    cout << "epoch: " << epoch + 1 << " batch: " << i + 1 << endl;
+                    cout  << "loss: " << _loss << endl;
                     cout << endl;
                     lossDisplayTime = clock();
                     lossDisplayCounter = 0;
                     save(saveLocation, saveName);
                 }
                 lossDisplayCounter ++;
-                epoch++;
             }
         }
         save(saveLocation, saveName);
@@ -551,9 +549,7 @@ public:
         cout << "Used time: " << hour << " hours " << min << " mins " << sec << " secs " << endl;
         cout << endl;
         T _loss = loss();
-        cout << "epoch " << epoch << " loss: " << _loss << endl;
-
-
+        cout << "epoch: " << totalEpoch << " loss: " << _loss << endl;
     }
 
     void save(const string& location, const string& name)
