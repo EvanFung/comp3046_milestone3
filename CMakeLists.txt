@@ -8,11 +8,6 @@ set(OPENMP_LIBRARIES "/usr/local/Cellar/llvm/9.0.0_1/lib")
 set(OPENMP_INCLUDES "/usr/local/Cellar/llvm/9.0.0_1/include")
 OPTION (USE_OpenMP "Use OpenMP to enamble <omp.h>" ON)
 
-
-
-
-OPTION (USE_OpenMP "Use OpenMP to enamble <omp.h>" ON)
-
 # Find OpenMP
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -36,20 +31,20 @@ endif()
 if(USE_OpenMP)
     find_package(OpenMP REQUIRED)
 endif(USE_OpenMP)
-
-if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(OpenMP_C "${CMAKE_C_COMPILER}")
-    set(OpenMP_C_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
-    set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
-    set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})
-    set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})
-    set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})
-endif()
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
+#For windows uncomment this line and comment 10 - 33 line.
+#if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+#    set(OpenMP_C "${CMAKE_C_COMPILER}")
+#    set(OpenMP_C_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
+#    set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
+#    set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})
+#    set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})
+#    set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})
+#endif()
+#if (OPENMP_FOUND)
+#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
 
 add_executable(annTraining src/main.cpp src/NeuralNetwork.cpp)
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
