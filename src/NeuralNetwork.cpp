@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include "../header/MatrixVector.h"
 
 using namespace std;
@@ -566,7 +567,7 @@ public:
         while(getline(ss, folder, '/'))
         {
             folders += folder;
-            mkdir(folders.c_str());
+            mkdir(folders.c_str(),0777);
             folders += "/";
         }
 
