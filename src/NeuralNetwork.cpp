@@ -567,7 +567,7 @@ public:
         while(getline(ss, folder, '/'))
         {
             folders += folder;
-            mkdir(folders.c_str(),0777);
+            mkdir(folders.c_str());
             folders += "/";
         }
 
