@@ -518,7 +518,7 @@ public:
 
                 update(batchInputLayers, batchGroundTruths, learningRate);
 
-                if(lossDisplayCounter == 30 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 20 )
+                if(lossDisplayCounter == 30 || (clock() - lossDisplayTime) / CLOCKS_PER_SEC > 20 || i == inputLayers.size() / batchSize)
                 {
                     cout << endl;
                     T _loss = loss();
